@@ -1,4 +1,4 @@
-# SDL on Zig
+# SDL 3.1.6 on Zig
 
 This is a fork of [SDL](https://www.libsdl.org/), packaged for Zig (Initially by Andrew Kelley) and in-sync with the latest SDL 3 version in the main repository.
 Unnecessary files have been deleted, and the build system has been replaced with `build.zig`
@@ -29,7 +29,7 @@ if (target.result.os.tag == .linux) {
     exe.linkSystemLibrary("SDL3");
     exe.linkLibC();
 } else {
-    const sdl_dep = b.dependency("SDL", .{
+    const sdl_dep = b.dependency("sdl", .{
         .optimize = optimize,
         .target = target,
     });

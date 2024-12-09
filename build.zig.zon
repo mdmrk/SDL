@@ -1,7 +1,7 @@
 .{
     .name = "SDL",
-    .minimum_zig_version = "0.12.0",
-    .version = "2.26.3-6",
+    .minimum_zig_version = "0.13.0",
+    .version = "3.1.6",
     .dependencies = .{
         .sdl = .{
             .url = "https://github.com/libsdl-org/SDL/archive/refs/tags/preview-3.1.6.tar.gz",
