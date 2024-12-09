@@ -1,6 +1,6 @@
 # SDL on Zig
 
-This is a fork of [SDL](https://www.libsdl.org/), packaged for Zig (Initially by Andrew Kelley) and in-sync with the latest SDL releases in the main repository.
+This is a fork of [SDL](https://www.libsdl.org/), packaged for Zig (Initially by Andrew Kelley) and in-sync with the latest SDL 3 version in the main repository.
 Unnecessary files have been deleted, and the build system has been replaced with `build.zig`
 
 ## Usage
@@ -8,7 +8,7 @@ Unnecessary files have been deleted, and the build system has been replaced with
 We can easily fetch this library using `zig fetch`, for example:
 
 ```bash
-zig fetch --save https://github.com/pwbh/SDL/archive/refs/tags/release-2.30.3.tar.gz
+zig fetch --save=sdl git+https://github.com/mdmrk/SDL#main
 ```
 
 If another SDL version needed, please see available tags released.
@@ -24,16 +24,16 @@ const exe = b.addExecutable(.{
   });
 
 if (target.result.os.tag == .linux) {
-    // The SDL package doesn't work for Linux yet, so we rely on system
-    // packages for now.
-    exe.linkSystemLibrary("SDL2");
+    // It is suggested to link system SDL3 in Linux, as explained here:
+    // https://ziggit.dev/t/build-allyourcodebase-sdl-on-linux/6857/3
+    exe.linkSystemLibrary("SDL3");
     exe.linkLibC();
 } else {
     const sdl_dep = b.dependency("SDL", .{
-        .optimize = .ReleaseFast,
+        .optimize = optimize,
         .target = target,
     });
-    exe.linkLibrary(sdl_dep.artifact("SDL2"));
+    exe.linkLibrary(sdl_dep.artifact("SDL3"));
 }
 
 b.installArtifact(exe);
@@ -47,7 +47,7 @@ Following codesnippet should create a window that can be exited.
 
 ```zig
 const c = @cImport({
-    @cInclude("SDL2/SDL.h");
+    @cInclude("SDL3/SDL.h");
 });
 
 pub fn main() !void {
