@@ -56,6 +56,9 @@ pub fn build(b: *std.Build) void {
                 .files = &objective_c_src_files,
                 .flags = &.{"-fobjc-arc"},
             });
+            // lib.addIncludePath(.{ .cwd_relative = "/sdk/usr/include" });
+            // lib.addLibraryPath(.{ .cwd_relative = "/sdk/usr/lib" });
+            // lib.addFrameworkPath(.{ .cwd_relative = "/sdk/System/Library/Frameworks" });
             lib.linkFramework("GameController");
             lib.linkFramework("CoreHaptics");
             lib.linkFramework("OpenGL");
@@ -369,7 +372,7 @@ const darwin_src_files = [_][]const u8{
     "hidapi/mac/hid.c",
     "joystick/darwin/SDL_iokitjoystick.c",
     "loadso/dlopen/SDL_sysloadso.c",
-    "power/macosx/SDL_syspower.c",
+    "power/macos/SDL_syspower.c",
     "render/opengl/SDL_render_gl.c",
     "render/opengl/SDL_shaders_gl.c",
     "render/opengles2/SDL_render_gles2.c",
@@ -385,13 +388,10 @@ const darwin_src_files = [_][]const u8{
 
 const objective_c_src_files = [_][]const u8{
     "audio/coreaudio/SDL_coreaudio.m",
-    "file/cocoa/SDL_rwopsbundlesupport.m",
     "filesystem/cocoa/SDL_sysfilesystem.m",
-    "hidapi/testgui/mac_support_cocoa.m",
     "joystick/apple/SDL_mfijoystick.m",
-    "joystick/iphoneos/SDL_mfijoystick.m",
-    "locale/macosx/SDL_syslocale.m",
-    "misc/macosx/SDL_sysurl.m",
+    "locale/macos/SDL_syslocale.m",
+    "misc/macos/SDL_sysurl.m",
     "power/uikit/SDL_syspower.m",
     "render/metal/SDL_render_metal.m",
     "sensor/coremotion/SDL_coremotionsensor.m",
