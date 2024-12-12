@@ -46,37 +46,35 @@ Now lets test it out and see if it creates a window.
 Following codesnippet should create a window that can be exited.
 
 ```zig
+
 const c = @cImport({
     @cInclude("SDL3/SDL.h");
 });
 
 pub fn main() !void {
-    if (c.SDL_Init(c.SDL_INIT_VIDEO) != 0) {
+    if (!c.SDL_Init(c.SDL_INIT_VIDEO)) {
         c.SDL_Log("Unable to initialize SDL: %s", c.SDL_GetError());
         return error.SDLInitializationFailed;
     }
     defer c.SDL_Quit();
 
-    const screen = c.SDL_CreateWindow("My Game Window", c.SDL_WINDOWPOS_UNDEFINED, c.SDL_WINDOWPOS_UNDEFINED, 400, 140, c.SDL_WINDOW_OPENGL) orelse
-        {
-        c.SDL_Log("Unable to create window: %s", c.SDL_GetError());
-        return error.SDLInitializationFailed;
-    };
-    defer c.SDL_DestroyWindow(screen);
+    var window: ?*c.SDL_Window = undefined;
+    var renderer: ?*c.SDL_Renderer = undefined;
 
-    const renderer = c.SDL_CreateRenderer(screen, -1, 0) orelse {
-        c.SDL_Log("Unable to create renderer: %s", c.SDL_GetError());
+    if (!c.SDL_CreateWindowAndRenderer("My Game Window", 400, 140, c.SDL_WINDOW_OPENGL, @ptrCast(&window), @ptrCast(&renderer))) {
+        c.SDL_Log("Unable to create window and renderer: %s", c.SDL_GetError());
         return error.SDLInitializationFailed;
-    };
+    }
+    defer c.SDL_DestroyWindow(window);
     defer c.SDL_DestroyRenderer(renderer);
 
     var quit = false;
 
     while (!quit) {
         var event: c.SDL_Event = undefined;
-        while (c.SDL_PollEvent(&event) != 0) {
+        while (c.SDL_PollEvent(&event)) {
             switch (event.type) {
-                c.SDL_QUIT => {
+                c.SDL_EVENT_QUIT => {
                     quit = true;
                 },
                 else => {},
@@ -84,7 +82,7 @@ pub fn main() !void {
         }
 
         _ = c.SDL_RenderClear(renderer);
-        c.SDL_RenderPresent(renderer);
+        _ = c.SDL_RenderPresent(renderer);
 
         c.SDL_Delay(10);
     }
