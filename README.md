@@ -11,17 +11,23 @@ We can easily fetch this library using `zig fetch`, for example:
 zig fetch --save=sdl git+https://github.com/mdmrk/SDL#main
 ```
 
-If another SDL version needed, please see available tags released.
+Try the example with:
+
+```bash
+zig build sample
+```
 
 In your `build.zig`:
 
 ```zig
 const exe = b.addExecutable(.{
-      .name = "my-project",
-      .root_source_file = b.path("src/main.zig"),
-      .target = target,
-      .optimize = optimize,
-  });
+    .name = "sdltest",
+    .root_source_file = b.path("src/main.zig"),
+    .target = target,
+    .optimize = optimize,
+});
+
+b.installArtifact(exe);
 
 if (target.result.os.tag == .linux) {
     // It is suggested to link system SDL3 in Linux, as explained here:
@@ -35,8 +41,6 @@ if (target.result.os.tag == .linux) {
     });
     exe.linkLibrary(sdl_dep.artifact("SDL3"));
 }
-
-b.installArtifact(exe);
 ```
 
 ## Test it out

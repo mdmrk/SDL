@@ -1,5 +1,4 @@
 name: Builds simple window program
-
 on:
   pull_request:
     branches:
@@ -7,101 +6,58 @@ on:
   push:
     branches:
       - main
-
 defaults:
   run:
     shell: bash -e {0}
-
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-
 jobs:
   build-linux:
-    name: Linux
     runs-on: ubuntu-latest
     steps:
-      - name: Install zig 0.13
+      - uses: actions/checkout@v4
+      - uses: mlugg/setup-zig@v1
+        with:
+          version: 0.13.0
+      - name: Install SDL dependencies
         run: |
-          wget https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz
-          tar xf zig-linux-x86_64-0.13.0.tar.xz
-          echo "$GITHUB_WORKSPACE/zig-linux-x86_64-0.13.0" >> $GITHUB_PATH
-
-      - name: Check zig version
-        run: |
-          [ "$(zig version)" != "0.13.0" ] && exit 1 || exit 0
-
+          sudo apt-get update
+          sudo apt-get install -y build-essential git make \
+          pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
+          libaudio-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
+          libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev \
+          libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+          libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev \
+          libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev
       - name: Install SDL2 via package manager
         run: |
-          sudo apt update
-          sudo apt install libsdl2-dev
-
-      - name: Clone example project
-        run: git clone https://github.com/pwbh/sdl-window-test.git
-
-      - name: Fetch modified pwbh/SDL package
-        run: |
-          cd sdl-window-test
-          echo https://github.com/pwbh/SDL/archive/refs/heads/$BRANCH_NAME.tar.gz
-          zig fetch --save https://github.com/pwbh/SDL/archive/refs/heads/$BRANCH_NAME.tar.gz
-
+          wget https://github.com/libsdl-org/SDL/releases/download/preview-3.1.6/SDL3-3.1.6.tar.gz
+          tar xf SDL3-3.1.6.tar.gz
+          cd SDL3-3.1.6
+          cmake -G Ninja -S . -B build
+          cd build
+          cmake --build .
+          sudo ninja install
       - name: Build
         run: |
-          cd sdl-window-test
           zig build
-
   build-macos:
-    name: MacOS
     runs-on: macos-latest
     steps:
-      - name: Install zig 0.13
-        run: |
-          wget https://ziglang.org/download/0.13.0/zig-macos-aarch64-0.13.0.tar.xz
-          tar xf zig-macos-aarch64-0.13.0.tar.xz
-          echo "$GITHUB_WORKSPACE/zig-macos-aarch64-0.13.0" >> $GITHUB_PATH
-
-      - name: Check zig version
-        run: |
-          [ "$(zig version)" != "0.13.0" ] && exit 1 || exit 0
-
-      - name: Clone example project
-        run: git clone https://github.com/pwbh/sdl-window-test.git
-
-      - name: Fetch modified pwbh/SDL package
-        run: |
-          cd sdl-window-test
-          echo https://github.com/pwbh/SDL/archive/refs/heads/$BRANCH_NAME.tar.gz
-          zig fetch --save https://github.com/pwbh/SDL/archive/refs/heads/$BRANCH_NAME.tar.gz
-
+      - uses: actions/checkout@v4
+      - uses: mlugg/setup-zig@v1
+        with:
+          version: 0.13.0
       - name: Build
         run: |
-          cd sdl-window-test
           zig build
-
   build-windows:
-    name: Windows
     runs-on: windows-latest
     steps:
-      - name: Install Zig 0.13
-        run: |
-          curl -L -o zig-windows-x86_64-0.13.0.zip https://ziglang.org/download/0.13.0/zig-windows-x86_64-0.13.0.zip
-          unzip -qq zig-windows-x86_64-0.13.0.zip -d $GITHUB_WORKSPACE
-          echo "$GITHUB_WORKSPACE/zig-windows-x86_64-0.13.0" >> $GITHUB_PATH
-
-      - name: Check Zig version
-        run: |
-          echo $GITHUB_PATH
-          [ "$($GITHUB_WORKSPACE/zig-windows-x86_64-0.13.0/zig version)" != "0.13.0" ] && exit 1 || exit 0
-
-      - name: Clone example project
-        run: git clone https://github.com/pwbh/sdl-window-test.git
-
-      - name: Fetch modified pwbh/SDL package
-        run: |
-          cd sdl-window-test
-          echo https://github.com/pwbh/SDL/archive/refs/heads/$BRANCH_NAME.tar.gz
-          $GITHUB_WORKSPACE/zig-windows-x86_64-0.13.0/zig fetch --save https://github.com/pwbh/SDL/archive/refs/heads/$BRANCH_NAME.tar.gz
-
+      - uses: actions/checkout@v4
+      - uses: mlugg/setup-zig@v1
+        with:
+          version: 0.13.0
       - name: Build
         run: |
-          cd sdl-window-test
-          $GITHUB_WORKSPACE/zig-windows-x86_64-0.13.0/zig build
+          zig build

@@ -4,9 +4,7 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const t = target.result;
-
     const sdl_c = b.dependency("sdl", .{});
-
     const lib = b.addStaticLibrary(.{
         .name = "SDL3",
         .target = target,
@@ -15,12 +13,10 @@ pub fn build(b: *std.Build) void {
     });
 
     const src_root_path = sdl_c.path("src");
-
     lib.addIncludePath(sdl_c.path("src"));
     lib.addIncludePath(sdl_c.path("include"));
     lib.addIncludePath(sdl_c.path("include/SDL3"));
     lib.addIncludePath(sdl_c.path("include/build_config"));
-
     lib.addCSourceFiles(.{
         .root = src_root_path,
         .files = &generic_src_files,
@@ -51,9 +47,6 @@ pub fn build(b: *std.Build) void {
                 .files = &objective_c_src_files,
                 .flags = &.{"-fobjc-arc"},
             });
-            // lib.addIncludePath(.{ .cwd_relative = "/sdk/usr/include" });
-            // lib.addLibraryPath(.{ .cwd_relative = "/sdk/usr/lib" });
-            // lib.addFrameworkPath(.{ .cwd_relative = "/sdk/System/Library/Frameworks" });
             lib.linkFramework("GameController");
             lib.linkFramework("CoreHaptics");
             lib.linkFramework("OpenGL");
@@ -80,6 +73,29 @@ pub fn build(b: *std.Build) void {
     lib.installHeadersDirectory(sdl_c.path("include/build_config"), "SDL3", .{});
     lib.installHeadersDirectory(sdl_c.path("include/SDL3"), "SDL3", .{});
     b.installArtifact(lib);
+
+    // sample.zig step
+    const exe = b.addExecutable(.{
+        .name = "sample",
+        .root_source_file = b.path("sample.zig"),
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+
+    if (target.result.os.tag == .linux) {
+        exe.linkSystemLibrary("SDL3");
+    } else {
+        exe.linkLibrary(lib);
+    }
+
+    b.installArtifact(exe);
+
+    const run_cmd = b.addRunArtifact(exe);
+    run_cmd.step.dependOn(b.getInstallStep());
+
+    const run_step = b.step("sample", "Run the sample app");
+    run_step.dependOn(&run_cmd.step);
 }
 
 const generic_src_files = [_][]const u8{
