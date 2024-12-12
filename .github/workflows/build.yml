@@ -40,6 +40,7 @@ jobs:
           sudo ninja install
       - name: Build
         run: |
+          cd sample
           zig build
   build-macos:
     runs-on: macos-latest
@@ -50,6 +51,7 @@ jobs:
           version: 0.13.0
       - name: Build
         run: |
+          cd sample
           zig build
   build-windows:
     runs-on: windows-latest
@@ -60,4 +62,5 @@ jobs:
           version: 0.13.0
       - name: Build
         run: |
+          cd sample
           zig build

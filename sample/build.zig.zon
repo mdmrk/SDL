@@ -1,0 +1,14 @@
+.{
+    .name = "sample",
+    .version = "0.0.0",
+    .dependencies = .{
+        .sdl = .{
+            .path = "..",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}

@@ -73,29 +73,6 @@ pub fn build(b: *std.Build) void {
     lib.installHeadersDirectory(sdl_c.path("include/build_config"), "SDL3", .{});
     lib.installHeadersDirectory(sdl_c.path("include/SDL3"), "SDL3", .{});
     b.installArtifact(lib);
-
-    // sample.zig step
-    const exe = b.addExecutable(.{
-        .name = "sample",
-        .root_source_file = b.path("sample.zig"),
-        .target = target,
-        .optimize = optimize,
-        .link_libc = true,
-    });
-
-    if (target.result.os.tag == .linux) {
-        exe.linkSystemLibrary("SDL3");
-    } else {
-        exe.linkLibrary(lib);
-    }
-
-    b.installArtifact(exe);
-
-    const run_cmd = b.addRunArtifact(exe);
-    run_cmd.step.dependOn(b.getInstallStep());
-
-    const run_step = b.step("sample", "Run the sample app");
-    run_step.dependOn(&run_cmd.step);
 }
 
 const generic_src_files = [_][]const u8{
